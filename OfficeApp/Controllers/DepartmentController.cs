@@ -2,24 +2,42 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeApp.Models;
+using OfficeApp.Services.Abstraction;
+using OfficeApp.Services.Implementation;
 
 namespace OfficeApp.Controllers;
 
 public class DepartmentController : Controller
 {
-    private readonly AppDbContext _context;
+    private readonly IDepartmentService _departmentService;
 
-    public DepartmentController(AppDbContext context)
+    public DepartmentController(IDepartmentService departmentService)
     {
-        _context = context;
+        _departmentService = departmentService;
     }
 
     [HttpGet]
     public IActionResult Index()
     {
-        return View(_context.Departments.ToList());
+        return View(_departmentService.GetDepartments());
     }
 
+    [HttpGet]
+    public IActionResult Details(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var department = _departmentService.GetDepartmentById(id);
+        if (department == null)
+        {
+            return NotFound();
+        }
+
+        return View(department);
+    }
 
     [HttpGet]
     public IActionResult Create()
@@ -32,8 +50,7 @@ public class DepartmentController : Controller
     {
         if (ModelState.IsValid)
         {
-            _context.Add(department);
-            _context.SaveChanges();
+            _departmentService.AddDepartment(department);
             return RedirectToAction(nameof(Index));
         }
         return View(department);
@@ -47,11 +64,13 @@ public class DepartmentController : Controller
             return NotFound();
         }
 
-        var department = _context.Departments.Find(id);
+        var department = _departmentService.GetDepartmentById(id);
+
         if (department == null)
         {
             return NotFound();
         }
+
         return View(department);
     }
 
@@ -67,12 +86,11 @@ public class DepartmentController : Controller
         {
             try
             {
-                _context.Update(department);
-                _context.SaveChanges();
+                _departmentService.UpdateDepartment(department);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Departments.Any(x => x.Id == id))
+                if (!_departmentService.DepartmentExists(id))
                 {
                     return NotFound();
                 }
@@ -84,5 +102,36 @@ public class DepartmentController : Controller
             return RedirectToAction(nameof(Index));
         }
         return View(department);
+    }
+
+    [HttpGet]
+    public IActionResult Delete(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var department = _departmentService.GetDepartmentById(id);
+        if (department == null)
+        {
+            return NotFound();
+        }
+
+        return View(department);
+    }
+
+
+    [HttpPost, ActionName("Delete")]
+    public IActionResult DeleteConfirmed(int id)
+    {
+        var department = _departmentService.GetDepartmentById(id);
+
+        if (department != null)
+        {
+            _departmentService.DeleteDepartment(department);
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 }
