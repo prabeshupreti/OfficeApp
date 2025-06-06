@@ -1,6 +1,8 @@
 
 using Microsoft.EntityFrameworkCore;
 using OfficeApp;
+using OfficeApp.Services.Abstraction;
+using OfficeApp.Services.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,8 @@ builder.Services.AddDbContext<AppDbContext>(config =>
 {
     config.UseSqlite(builder.Configuration.GetConnectionString("Default"));
 });
+
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 
 var app = builder.Build();
 
