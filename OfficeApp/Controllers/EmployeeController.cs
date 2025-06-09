@@ -27,7 +27,8 @@ namespace OfficeApp.Controllers
         // GET: Employee
         public IActionResult Index()
         {
-            return View(_context.Employees.ToList());
+            return View(_context.Employees.Include(x => x.Department)
+                    .ToList());
         }
 
         // GET: Employee/Details/5
@@ -38,7 +39,7 @@ namespace OfficeApp.Controllers
                 return NotFound();
             }
 
-            var employee = _context.Employees
+            var employee = _context.Employees.Include(x => x.Department)
                 .FirstOrDefault(m => m.Id == id);
             if (employee == null)
             {
@@ -77,6 +78,7 @@ namespace OfficeApp.Controllers
                     LastName = employeeViewModel.LastName,
                     Contact = employeeViewModel.Contact,
                     Address = employeeViewModel.Address,
+                    DepartmentId = employeeViewModel.DepartmentId
                 };
 
                 employee.PhotoPath = filePath.Split("wwwroot")[1];
@@ -122,7 +124,8 @@ namespace OfficeApp.Controllers
                 LastName = employee.LastName,
                 Contact = employee.Contact,
                 Address = employee.Address,
-                PhotoPath = employee.PhotoPath
+                PhotoPath = employee.PhotoPath,
+                DepartmentId = employee.DepartmentId,
             };
 
             return View(updateEmployeeViewModel);
@@ -158,6 +161,7 @@ namespace OfficeApp.Controllers
                         LastName = employeeViewModel.LastName,
                         Contact = employeeViewModel.Contact,
                         Address = employeeViewModel.Address,
+                        DepartmentId = employeeViewModel.DepartmentId,
                     };
 
                     employee.PhotoPath = filePath.Split("wwwroot")[1];
@@ -206,7 +210,7 @@ namespace OfficeApp.Controllers
                 return NotFound();
             }
 
-            var employee = _context.Employees
+            var employee = _context.Employees.Include(x => x.Department)
                 .FirstOrDefault(m => m.Id == id);
             if (employee == null)
             {
