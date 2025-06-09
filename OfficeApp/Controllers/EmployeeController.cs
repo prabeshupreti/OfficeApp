@@ -140,6 +140,16 @@ namespace OfficeApp.Controllers
             }
             try
             {
+                var employee = new Employee
+                {
+                    Id = employeeViewModel.Id,
+                    FirstName = employeeViewModel.FirstName,
+                    LastName = employeeViewModel.LastName,
+                    Contact = employeeViewModel.Contact,
+                    Address = employeeViewModel.Address,
+                    DepartmentId = employeeViewModel.DepartmentId,
+                };
+
                 if (employeeViewModel.Photo != null && employeeViewModel.Photo.Length > 0)
                 {
                     // Create a unique filename (optional)
@@ -153,16 +163,6 @@ namespace OfficeApp.Controllers
                     }
 
                     var filePath = $@"{uploadsFolder}{fileName}";
-
-                    Employee employee = new Employee
-                    {
-                        Id = employeeViewModel.Id,
-                        FirstName = employeeViewModel.FirstName,
-                        LastName = employeeViewModel.LastName,
-                        Contact = employeeViewModel.Contact,
-                        Address = employeeViewModel.Address,
-                        DepartmentId = employeeViewModel.DepartmentId,
-                    };
 
                     employee.PhotoPath = filePath.Split("wwwroot")[1];
 
@@ -181,12 +181,21 @@ namespace OfficeApp.Controllers
                     if (System.IO.File.Exists(file))
 
                         System.IO.File.Delete(file);
-
-                    _context.Update(employee);
-                    _context.SaveChanges();
-
-                    return RedirectToAction(nameof(Index));
                 }
+                else 
+                {
+                    employee.PhotoPath = employeeViewModel.PhotoPath;
+
+                    if (!ModelState.IsValid)
+                    {
+                        return View(employeeViewModel);
+                    }
+                }
+
+                _context.Update(employee);
+                _context.SaveChanges();
+
+                return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateConcurrencyException)
             {
