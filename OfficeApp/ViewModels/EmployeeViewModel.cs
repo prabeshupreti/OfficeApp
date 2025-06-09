@@ -26,4 +26,7 @@ public class EmployeeViewModel
     public string? Address { get; set; }
 
     public IFormFile Photo { get; set; }
+
+    [Display(Name ="Department")]
+    public int DepartmentId { get; set; }
 }

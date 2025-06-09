@@ -27,6 +27,9 @@ public class UpdateEmployeeViewModel
     [Display(Name = "Address")]
     public string? Address { get; set; }
 
+    [Display(Name ="Department")]
+    public int DepartmentId { get; set; }
+
     public string? PhotoPath { get; set; }
 
     public IFormFile Photo { get; set; }

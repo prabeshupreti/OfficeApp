@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OfficeApp.Models;
 
@@ -29,4 +30,8 @@ public class Employee
 
     [Required]
     public string PhotoPath { get; set; }
+
+    [ForeignKey(nameof(Department))]
+    public int DepartmentId { get; set; }
+    public Department Department { get; set; }
 }
