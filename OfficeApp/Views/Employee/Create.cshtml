@@ -1,8 +1,11 @@
-﻿@{
+﻿
+@{
     ViewData["Title"] = "Create";
 }
 
 @model EmployeeViewModel
+
+@inject IDepartmentService _departmentService
 
 <form asp-action="Create" enctype="multipart/form-data" method="post" class="mt-4">
     <div class="mb-3">
@@ -23,6 +26,15 @@
         <label asp-for="LastName" class="form-label"></label>
         <input asp-for="LastName" class="form-control" />
         <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="DepartmentId" class="form-label"></label>
+        <select asp-for="DepartmentId" class="form-control">
+            @foreach (var item in _departmentService.GetDepartments())
+            {
+                <option value="@item.Id">@item.Name</option>
+            }
+        </select>
     </div>
     <div class="mb-3">
         <label asp-for="Address" class="form-label"></label>
