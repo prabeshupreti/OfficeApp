@@ -208,7 +208,6 @@ namespace OfficeApp.Controllers
                     throw;
                 }
             }
-            return View(employeeViewModel);
         }
 
         // GET: Employee/Delete/5
