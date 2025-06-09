@@ -1,0 +1,72 @@
+﻿@{
+    ViewData["Title"] = "Edit";
+}
+
+@model UpdateEmployeeViewModel
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div class="mb-3">
+                <input asp-for="Id" type="hidden" />
+                <input asp-for="PhotoPath" type="hidden" />
+                <input asp-for="Photo" type="file" accept="image/*" id="hiddenFileInput" class="d-none" onchange="previewPhoto(this)" />
+                <label class="form-label">Click Image to Upload Photo</label><br />
+                <img id="photoPreview" src="@Model.PhotoPath" alt="Click to upload"
+                     class="img-thumbnail"
+                     style="max-width: 200px; cursor: pointer;"
+                     onclick="document.getElementById('hiddenFileInput').click();" />
+                <span asp-validation-for="Photo" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="FirstName" class="form-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="LastName" class="form-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Address" class="form-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Contact" class="form-label"></label>
+                <input asp-for="Contact" class="form-control" />
+                <span asp-validation-for="Contact" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function previewPhoto(input) {
+        const file = input.files[0];
+        const preview = document.getElementById('photoPreview');
+
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+            };
+
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = '#';
+            preview.classList.add('d-none');
+        }
+    }
+</script>
