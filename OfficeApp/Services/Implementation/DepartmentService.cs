@@ -25,7 +25,7 @@ public class DepartmentService : IDepartmentService
         _context.SaveChanges();
     }
 
-    public bool DepartmentExists(int Id)
+    public bool DepartmentExists(int? Id)
     {
         return _context.Departments.Any(x => x.Id == Id);
     }
