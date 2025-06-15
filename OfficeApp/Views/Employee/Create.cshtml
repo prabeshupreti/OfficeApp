@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Create";
 }
 
@@ -7,50 +6,65 @@
 
 @inject IDepartmentService _departmentService
 
-<form asp-action="Create" enctype="multipart/form-data" method="post" class="mt-4">
-    <div class="mb-3">
-        <input asp-for="Photo" type="file" accept="image/*" id="hiddenFileInput" class="d-none" onchange="previewPhoto(this)" />
-        <label class="form-label">Click Image to Upload Photo</label><br />
-        <img id="photoPreview" src="/images/placeholder.jpg" alt="Click to upload"
-             class="img-thumbnail"
-             style="max-width: 200px; cursor: pointer;"
-             onclick="document.getElementById('hiddenFileInput').click();" />
-        <span asp-validation-for="Photo" class="text-danger"></span>
+<h1>Create</h1>
+
+<h4>Employee</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+
+        <form asp-action="Create" enctype="multipart/form-data" method="post" class="mt-4">
+            <div class="mb-3">
+                <input asp-for="Photo" type="file" accept="image/*" id="hiddenFileInput" class="d-none" onchange="previewPhoto(this)" />
+                <label class="form-label">Click Image to Upload Photo</label><br />
+                <img id="photoPreview" src="/images/placeholder.jpg" alt="Click to upload"
+                     class="img-thumbnail"
+                     style="max-width: 200px; cursor: pointer;"
+                     onclick="document.getElementById('hiddenFileInput').click();" />
+                <span asp-validation-for="Photo" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="FirstName" class="form-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="LastName" class="form-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="DepartmentId" class="form-label"></label>
+                <select asp-for="DepartmentId" class="form-control">
+                    @foreach (var item in _departmentService.GetDepartments())
+                    {
+                        <option value="@item.Id">@item.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Address" class="form-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Contact" class="form-label"></label>
+                <input asp-for="Contact" class="form-control" />
+                <span asp-validation-for="Contact" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
     </div>
-    <div class="mb-3">
-        <label asp-for="FirstName" class="form-label"></label>
-        <input asp-for="FirstName" class="form-control" />
-        <span asp-validation-for="FirstName" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="LastName" class="form-label"></label>
-        <input asp-for="LastName" class="form-control" />
-        <span asp-validation-for="LastName" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="DepartmentId" class="form-label"></label>
-        <select asp-for="DepartmentId" class="form-control">
-            @foreach (var item in _departmentService.GetDepartments())
-            {
-                <option value="@item.Id">@item.Name</option>
-            }
-        </select>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Address" class="form-label"></label>
-        <input asp-for="Address" class="form-control" />
-        <span asp-validation-for="Address" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Contact" class="form-label"></label>
-        <input asp-for="Contact" class="form-control" />
-        <span asp-validation-for="Contact" class="text-danger"></span>
-    </div>
-    <br />
-    <div class="form-group">
-        <input type="submit" value="Create" class="btn btn-primary" />
-    </div>
-</form>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
 
 <script>
     function previewPhoto(input) {
