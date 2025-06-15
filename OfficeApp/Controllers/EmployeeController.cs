@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfficeApp;
 using OfficeApp.Models;
+using OfficeApp.Services.Abstraction;
+using OfficeApp.Services.Implementation;
 using OfficeApp.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -14,21 +16,20 @@ namespace OfficeApp.Controllers
 {
     public class EmployeeController : Controller
     {
-        private readonly AppDbContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IWebHostEnvironmentService _webHostEnvironmentService;
+        private readonly IEmployeeService _employeeService;
 
-        public EmployeeController(AppDbContext context,
-            IWebHostEnvironment webHostEnvironment)
+        public EmployeeController(IWebHostEnvironmentService webHostEnvironmentService,
+            IEmployeeService employeeService)
         {
-            _context = context;
-            _webHostEnvironment = webHostEnvironment;
+            _webHostEnvironmentService = webHostEnvironmentService;
+            _employeeService = employeeService;
         }
 
         // GET: Employee
         public IActionResult Index()
         {
-            return View(_context.Employees.Include(x => x.Department)
-                    .ToList());
+            return View(_employeeService.GetEmployees());
         }
 
         // GET: Employee/Details/5
@@ -39,8 +40,7 @@ namespace OfficeApp.Controllers
                 return NotFound();
             }
 
-            var employee = _context.Employees.Include(x => x.Department)
-                .FirstOrDefault(m => m.Id == id);
+            var employee = _employeeService.GetEmployeeById(id);
             if (employee == null)
             {
                 return NotFound();
@@ -63,15 +63,6 @@ namespace OfficeApp.Controllers
                 // Create a unique filename (optional)
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(employeeViewModel.Photo.FileName);
 
-                // Determine the path to save file (e.g., wwwroot/ProfilePhotos)
-                var uploadsFolder = $@"{_webHostEnvironment.WebRootPath}\ProfilePhotos\";
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
-
-                var filePath = $@"{uploadsFolder}{fileName}";
-
                 Employee employee = new Employee
                 {
                     FirstName = employeeViewModel.FirstName,
@@ -81,20 +72,17 @@ namespace OfficeApp.Controllers
                     DepartmentId = employeeViewModel.DepartmentId
                 };
 
-                employee.PhotoPath = filePath.Split("wwwroot")[1];
+                var FilePath = _webHostEnvironmentService.GetFilePath(fileName);
+
+                employee.PhotoPath = FilePath.RelativePath;
 
                 if (!ModelState.IsValid)
                 {
                     return View(employeeViewModel);
                 }
 
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    employeeViewModel.Photo.CopyTo(fileStream);
-                }
-
-                _context.Employees.Add(employee);
-                _context.SaveChanges();
+                _employeeService.AddEmployee(employee);
+                _webHostEnvironmentService.AddEmployeeProfilePhoto(employeeViewModel.Photo, FilePath.AbsolutePath);
 
                 return RedirectToAction(nameof(Index));
             }
@@ -111,15 +99,17 @@ namespace OfficeApp.Controllers
                 return NotFound();
             }
 
-            var employee = _context.Employees.Find(id);
-            if (employee == null)
+            var employeeExists = _employeeService.EmployeeExists(id);
+            if (!employeeExists)
             {
                 return NotFound();
             }
 
+            var employee = _employeeService.GetEmployeeById(id);
+
             UpdateEmployeeViewModel updateEmployeeViewModel = new UpdateEmployeeViewModel
             {
-                Id = employee.Id,
+                Id = employee!.Id,
                 FirstName = employee.FirstName,
                 LastName = employee.LastName,
                 Contact = employee.Contact,
@@ -156,50 +146,35 @@ namespace OfficeApp.Controllers
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(employeeViewModel.Photo.FileName);
 
                     // Determine the path to save file (e.g., wwwroot/ProfilePhotos)
-                    var uploadsFolder = $@"{_webHostEnvironment.WebRootPath}\ProfilePhotos\";
-                    if (!Directory.Exists(uploadsFolder))
-                    {
-                        Directory.CreateDirectory(uploadsFolder);
-                    }
+                    var FilePath = _webHostEnvironmentService.GetFilePath(fileName);
 
-                    var filePath = $@"{uploadsFolder}{fileName}";
+                    string AbsoluteFilePath = FilePath.AbsolutePath;
 
-                    employee.PhotoPath = filePath.Split("wwwroot")[1];
+                    string RelativeFilePath = FilePath.RelativePath;
 
                     if (!ModelState.IsValid)
                     {
                         return View(employeeViewModel);
                     }
 
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        employeeViewModel.Photo.CopyTo(fileStream);
-                    }
+                    employee.PhotoPath = RelativeFilePath;
 
-                    string file = @$"{_webHostEnvironment.WebRootPath}{employeeViewModel.PhotoPath}";
+                    _webHostEnvironmentService.AddEmployeeProfilePhoto(employeeViewModel.Photo, AbsoluteFilePath);
 
-                    if (System.IO.File.Exists(file))
-
-                        System.IO.File.Delete(file);
+                    _webHostEnvironmentService.DeleteEmployeeProfilePhoto(employeeViewModel.PhotoPath);
                 }
-                else 
+                else
                 {
                     employee.PhotoPath = employeeViewModel.PhotoPath;
-
-                    if (!ModelState.IsValid)
-                    {
-                        return View(employeeViewModel);
-                    }
                 }
 
-                _context.Update(employee);
-                _context.SaveChanges();
+                _employeeService.UpdateEmployee(employee);
 
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!EmployeeExists(employeeViewModel.Id))
+                if (!_employeeService.EmployeeExists(id))
                 {
                     return NotFound();
                 }
@@ -218,8 +193,7 @@ namespace OfficeApp.Controllers
                 return NotFound();
             }
 
-            var employee = _context.Employees.Include(x => x.Department)
-                .FirstOrDefault(m => m.Id == id);
+            var employee = _employeeService.GetEmployeeById(id);
             if (employee == null)
             {
                 return NotFound();
@@ -232,28 +206,15 @@ namespace OfficeApp.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeleteConfirmed(int id)
         {
-            var employee = _context.Employees.Find(id);
+            var employee = _employeeService.GetEmployeeById(id);
             if (employee != null)
-            {
-                _context.Employees.Remove(employee);
-            }
-
-            _context.SaveChanges();
+                _employeeService.DeleteEmployee(employee);
 
 
             // Determine the path to save file (e.g., wwwroot/ProfilePhotos)
-            string file = @$"{_webHostEnvironment.WebRootPath}{employee.PhotoPath}";
-
-            if (System.IO.File.Exists(file))
-
-                System.IO.File.Delete(file);
+            _webHostEnvironmentService.DeleteEmployeeProfilePhoto(employee!.PhotoPath);
 
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool EmployeeExists(int id)
-        {
-            return _context.Employees.Any(e => e.Id == id);
         }
     }
 }
