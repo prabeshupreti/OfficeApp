@@ -9,5 +9,5 @@ public interface IDepartmentService
     List<Department> GetDepartments();
     Department GetDepartmentById(int? Id);
     void UpdateDepartment(Department department);
-    bool DepartmentExists(int Id);
+    bool DepartmentExists(int? Id);
 }
