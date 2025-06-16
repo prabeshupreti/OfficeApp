@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeApp.Models;
@@ -7,6 +8,7 @@ using OfficeApp.Services.Implementation;
 
 namespace OfficeApp.Controllers;
 
+[Authorize]
 public class DepartmentController : Controller
 {
     private readonly IDepartmentService _departmentService;
