@@ -18,14 +18,9 @@ builder.Services.AddDbContext<AppDbContext>(config =>
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(x => 
 {
-
-    x.SignIn.RequireConfirmedAccount = false;
     x.Password.RequiredLength = 8;
-    x.Password.RequireDigit = true;
     x.Password.RequireNonAlphanumeric = false;
     x.Password.RequiredUniqueChars = 0;
-    x.Password.RequireUppercase = true;
-    x.Password.RequireLowercase = true;
     
     x.User.RequireUniqueEmail = true;
     x.Lockout.AllowedForNewUsers = false;
