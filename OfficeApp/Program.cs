@@ -28,10 +28,13 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(x =>
 
 builder.Services.ConfigureApplicationCookie(x => 
 {
+    x.Cookie.Name = "Identity";
+
     x.LoginPath = "/Account/Login";
     x.LogoutPath = "/Account/Logout";
 });
 
+//Adding dependency registration to the service container to access the HTTP context information through DI.
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
