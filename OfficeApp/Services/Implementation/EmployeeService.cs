@@ -6,13 +6,11 @@ namespace OfficeApp.Services.Implementation;
 
 public class EmployeeService : IEmployeeService
 {
-    private readonly IWebHostEnvironment _environment;
 
     private readonly AppDbContext _context;
 
-    public EmployeeService(IWebHostEnvironment environment, AppDbContext context)
+    public EmployeeService(AppDbContext context)
     {
-        _environment = environment;
         _context = context;
     }
 
@@ -40,7 +38,7 @@ public class EmployeeService : IEmployeeService
 
     public Employee GetEmployeeById(int? Id)
     {
-        return _context.Employees.Find(Id);
+        return _context.Employees.Include(x => x.Department).FirstOrDefault(x => x.Id == Id);
     }
 
     public List<Employee> GetEmployees()
