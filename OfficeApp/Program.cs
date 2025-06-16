@@ -1,4 +1,6 @@
 
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OfficeApp;
 using OfficeApp.Services.Abstraction;
@@ -13,6 +15,29 @@ builder.Services.AddDbContext<AppDbContext>(config =>
 {
     config.UseSqlite(builder.Configuration.GetConnectionString("Default"));
 });
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(x => 
+{
+
+    x.SignIn.RequireConfirmedAccount = false;
+    x.Password.RequiredLength = 8;
+    x.Password.RequireDigit = true;
+    x.Password.RequireNonAlphanumeric = false;
+    x.Password.RequiredUniqueChars = 0;
+    x.Password.RequireUppercase = true;
+    x.Password.RequireLowercase = true;
+    
+    x.User.RequireUniqueEmail = true;
+    x.Lockout.AllowedForNewUsers = false;
+
+}).AddDefaultTokenProviders().AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services.ConfigureApplicationCookie(x => 
+{
+    x.LoginPath = "/Account/Login";
+    x.LogoutPath = "/Account/Logout";
+});
+
 
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
@@ -42,6 +67,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
