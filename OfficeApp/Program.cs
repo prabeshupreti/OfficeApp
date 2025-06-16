@@ -38,6 +38,7 @@ builder.Services.ConfigureApplicationCookie(x =>
     x.LogoutPath = "/Account/Logout";
 });
 
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
