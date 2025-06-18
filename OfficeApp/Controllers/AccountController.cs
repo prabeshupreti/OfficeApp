@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OfficeApp.ViewModels;
 
@@ -88,6 +89,7 @@ public class AccountController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Logout() 
     {
         await _signInManager.SignOutAsync();
